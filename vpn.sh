@@ -15,6 +15,17 @@ attach()
   fi
 }
 
+create_no_attach()
+{
+  name=${1-vpn}
+  if [ $UID -ne 0 ]; then
+    sleep 1 #AGW
+    #exec tmux -L $name attach
+  else
+    exec ip netns exec $name su -c "exec tmux -L $name new -d " $SUDO_USER
+  fi
+}
+
 # Set up a network namespace
 start()
 {
@@ -49,7 +60,7 @@ start()
     ip link set lo up"
 
   # Create a tmux session in the namespace and attach to it
-  attach $1
+  create_no_attach $1
 }
 
 # Tear down a previously created network namespace
